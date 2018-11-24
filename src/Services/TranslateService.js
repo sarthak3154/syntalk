@@ -9,9 +9,6 @@ exports.getTranslation = (text, target, callback) => {
         .translate(text, target)
         .then(results => {
             const translation = results[0];
-
-            /*console.log(`Text: ${text}`);
-            console.log(`Translation: ${translation}`);*/
             callback(translation);
         })
         .catch(err => {
