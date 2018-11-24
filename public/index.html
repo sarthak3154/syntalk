@@ -1,15 +1,64 @@
-<script src="https://rtcmulticonnection.herokuapp.com/dist/RTCMultiConnection.min.js"></script>
-<script src="https://rtcmulticonnection.herokuapp.com/socket.io/socket.io.js"></script>
-<script>
-    const connection = new RTCMultiConnection();
+<html>
+<head>
+	<style type="text/css">
+    * {
+        margin: 0px;
+        outline: 0px;
+        /* [disabled]padding:0px; */
+        border: 0px;  
+    }
+    body, html
+    {
+        width:100%;
+        min-height: 100%;
+        background-color:#999;
+        
+    }
+    #myapp{
+    	width: 70%;
+    	height: 500px;
+    	margin: auto;
+    }
+    video:first-child {
+    	width: 60%;
+    	height: 400px;
+    	margin-left: 20%;
+    	margin-top: 10px;
+    	float: left;
+    	background-color: white;
+    	box-shadow: 2px 2px #666;
+    }
+    video {
+    	width: 20%;
+    	height: 20%;
+    	float: left;
+    	background-color: white;
+    	margin-left: 20%;
+    	margin-top: 5px;
+    	box-shadow: 2px 2px #333;
+    }
+	</style>
+</head>
+<body>
 
-    connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+	<div id="myapp">
 
-    connection.session = {
-        audio: true,
-        video: true
-    };
+	
+		<script src="https://rtcmulticonnection.herokuapp.com/dist/RTCMultiConnection.min.js"></script>
+		<script src="https://rtcmulticonnection.herokuapp.com/socket.io/socket.io.js"></script>
+		<script>
+		    const connection = new RTCMultiConnection();
 
-    connection.openOrJoin('your-room-id');
+		    connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
 
-</script>
+		    connection.session = {
+		        audio: true,
+		        video: true
+		    };
+
+		    connection.openOrJoin('your-room-id');
+
+		</script>
+	</div>
+</body>
+</html>
