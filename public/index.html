@@ -1,15 +1,31 @@
 <script src="https://rtcmulticonnection.herokuapp.com/dist/RTCMultiConnection.min.js"></script>
 <script src="https://rtcmulticonnection.herokuapp.com/socket.io/socket.io.js"></script>
+<script src="/socket.io/socket.io.js"></script>
 <script>
     const connection = new RTCMultiConnection();
+    const socket = io();
 
     connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
 
     connection.session = {
-        audio: true,
+        audio: false,
         video: true
     };
 
     connection.openOrJoin('your-room-id');
 
+    const constraints = {
+        audio: true,
+        video: false
+    };
+
+    socket.on('translation', (mediaStream) => {
+
+    });
+
+    navigator.mediaDevices.getUserMedia(constraints).then(mediaStream => {
+        socket.emit('media', mediaStream);
+    }).catch(error => {
+        console.log('navigator.getUserMedia error: ', error);
+    });
 </script>

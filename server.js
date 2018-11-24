@@ -1,22 +1,30 @@
 require('./src/constants');
 const express = require('express');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
+const app = express();
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
+const logger = require('morgan');
 const bodyParser = require('body-parser');
 
-const routes = require('./src/api/routes');
-const app = express();
 app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: false}));
-app.use(cookieParser());
+app.use(bodyParser.urlencoded({extended: true}));
 
-app.use('/api', routes);
-
-
-app.listen(HTTP_PORT, (err) => {
-    if (err) throw err;
-    console.log('Express server running on port: ' + HTTP_PORT);
+app.get('/', (req, res) => {
+    return res.sendFile(__dirname + '/public/index.html');
 });
 
-module.exports = app;
+io.on('connection', (socket) => {
+    console.log('User connected');
+    socket.on('media', (mediaStream) => {
+        // socket.emit('translation', SpeechController.translate(mediaStream));
+    })
+});
+
+
+http.listen(HTTP_PORT, (err) => {
+    if (err) throw err;
+    console.log('HTTP server running on port: ' + HTTP_PORT);
+});
+
+module.exports = http;
