@@ -1,0 +1,15 @@
+<script src="https://rtcmulticonnection.herokuapp.com/dist/RTCMultiConnection.min.js"></script>
+<script src="https://rtcmulticonnection.herokuapp.com/socket.io/socket.io.js"></script>
+<script>
+    const connection = new RTCMultiConnection();
+
+    connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+
+    connection.session = {
+        audio: true,
+        video: true
+    };
+
+    connection.openOrJoin('your-room-id');
+
+</script>
