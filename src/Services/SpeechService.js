@@ -17,14 +17,14 @@ const request = {
         profanityFilter: false,
         enableWordTimeOffsets: true
     },
-    interimResults: true // If you want interim results, set this to true
+    interimResults: true
 };
 
 exports.textToSpeech = (text) => {
     //TODO text to speech impl
 };
 
-let recognizeStream = null;
+let recognizeStream = null, results = [], finalText = null, found = false;
 
 function stopRecognitionStream() {
     if (recognizeStream) {
@@ -33,27 +33,50 @@ function stopRecognitionStream() {
     recognizeStream = null;
 }
 
+getFinalTranscribedResult = (data, callback) => {
+    const isTextFinal = undefined || data.results[0].isFinal;
+    results.shift();
+    results.push(data.results[0].alternatives[0].transcript);
+    if (isTextFinal && results.length > 0) {
+        return results[0];
+    } else {
+        return null;
+    }
+};
 
-exports.initStream = (socket, data) => {
-    recognizeStream = speechClient.streamingRecognize(request)
-        .on('error', console.error)
-        .on('data', (data) => {
-            process.stdout.write(
-                (data.results[0] && data.results[0].alternatives[0])
-                    ? `Transcription: ${data.results[0].alternatives[0].transcript}\n`
-                    : `\n\nReached transcription time limit, press Ctrl+C\n`);
-            socket.emit('speechData', data);
+let transcribedPromise = new Promise((resolve) => {
+    exports.initStream = (socket, data) => {
+        recognizeStream = speechClient.streamingRecognize(request)
+            .on('error', console.error)
+            .on('data', (data) => {
+                process.stdout.write(
+                    (data.results[0] && data.results[0].alternatives[0])
+                        ? `Transcription: ${data.results[0].alternatives[0].transcript}\n`
+                        : `\n\nReached transcription time limit, press Ctrl+C\n`);
 
-            if (data.results[0] && data.results[0].isFinal) {
-                stopRecognitionStream();
-                this.initStream(socket);
-                // console.log('restarted stream serverside');
-            }
-        });
-}
+                if (data.results[0] && data.results[0].isFinal) {
+                    stopRecognitionStream();
+                    this.initStream(socket);
+                }
 
-exports.speechToText = (socket, mediaStream) => {
+                if ((finalText = getFinalTranscribedResult(data)) != null) {
+                    found = true;
+                    console.log(finalText);
+                    resolve();
+                }
+            });
+    };
+});
+
+exports.speechToText = (socket, mediaStream, callback) => {
     if (recognizeStream !== null) {
         recognizeStream.write(mediaStream);
     }
+
+    transcribedPromise.then(() => {
+        if (found) {
+            found = false;
+            callback(finalText);
+        }
+    });
 };
