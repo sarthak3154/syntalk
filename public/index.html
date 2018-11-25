@@ -1,6 +1,7 @@
 <html>
 <head>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <style type="text/css">
         * {
             margin: 0px;
@@ -37,7 +38,8 @@
             margin-left: 22%;
             margin-top: -7.2%;
         }
-        button{
+
+        button {
             width: 100px;
             height: 40px;
             background-color: black;
@@ -46,7 +48,8 @@
             float: left;
             margin-left: 28%;
         }
-        button:hover{
+
+        button:hover {
             width: 100px;
             height: 40px;
             background-color: #666;
@@ -54,27 +57,26 @@
             border: 1px solid white;
             float: left;
         }
-        p
-        {
+
+        p {
             color: white;
             width: 100%;
             margin-top: -43%;
             margin-left: 5%;
             float: left;
-            font-family: 'Open Sans', sans-serif; font-size: 52px;  font-weight: lighter; 
+            font-family: 'Open Sans', sans-serif;
+            font-size: 52px;
+            font-weight: lighter;
         }
     </style>
 </head>
 <body>
-    <p>SYNTALK</p>
-
+<p>SYNTALK</p>
 
 <script src="https://rtcmulticonnection.herokuapp.com/dist/RTCMultiConnection.min.js"></script>
 <script src="https://rtcmulticonnection.herokuapp.com/socket.io/socket.io.js"></script>
 <script src="http://code.responsivevoice.org/responsivevoice.js"></script>
 <script src="/socket.io/socket.io.js"></script>
-
-
 
 <div id="myapp">
 
@@ -118,14 +120,14 @@
             if (outSampleRate > sampleRate) {
                 throw "downsampling rate show be smaller than original sample rate";
             }
-            var sampleRateRatio = sampleRate / outSampleRate;
-            var newLength = Math.round(buffer.length / sampleRateRatio);
-            var result = new Int16Array(newLength);
-            var offsetResult = 0;
-            var offsetBuffer = 0;
+            const sampleRateRatio = sampleRate / outSampleRate;
+            const newLength = Math.round(buffer.length / sampleRateRatio);
+            const result = new Int16Array(newLength);
+            let offsetResult = 0;
+            let offsetBuffer = 0;
             while (offsetResult < result.length) {
-                var nextOffsetBuffer = Math.round((offsetResult + 1) * sampleRateRatio);
-                var accum = 0, count = 0;
+                const nextOffsetBuffer = Math.round((offsetResult + 1) * sampleRateRatio);
+                let accum = 0, count = 0;
                 for (var i = offsetBuffer; i < nextOffsetBuffer && i < buffer.length; i++) {
                     accum += buffer[i];
                     count++;
@@ -157,8 +159,8 @@
         };
 
         function startCall() {
-            document.getElementById('bt1').disabled = true;
-            document.getElementById("p2").style.backgroundColor = "grey";
+           /* document.getElementById('bt1').disabled = true;
+            document.getElementById("p2").style.backgroundColor = "grey";*/
             socket.emit('startGoogleCloudStream', '');
             AudioContext = window.AudioContext || window.webkitAudioContext;
             context = new AudioContext();
@@ -170,14 +172,15 @@
                 console.log('navigator.getUserMedia error: ', error);
             });
         }
-        function endCall()
-        {
-            document.getElementById('bt1').disabled = false;
-            document.getElementById("p2").style.backgroundColor = "black";
+
+        function endCall() {
+            /*document.getElementById('bt1').disabled = false;
+            document.getElementById('p2').style.backgroundColor = "black";*/
+            socket.emit('endGoogleCloudStream', '');
         }
     </script>
     <button type="button" onclick="startCall();" id="bt1">Start Call</button>
-<button type="button" onclick="endCall();"  id="bt2">End Call</button>
+    <button type="button" onclick="endCall();" id="bt2">End Call</button>
 </div>
 </body>
 </html>

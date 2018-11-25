@@ -1,27 +1,42 @@
 const SpeechService = require('../Services/SpeechService');
 const TranslationService = require('../Services/TranslateService');
 
-speechToText = (socket, mediaStream, callback) => {
-    SpeechService.speechToText(socket, mediaStream, text => {
+speechToText = (mediaStream, callback) => {
+    SpeechService.speechToText(mediaStream, text => {
         if (text !== null) {
             callback(text);
         }
     });
 };
 
-exports.initStream = (socket, data) => {
-    SpeechService.initStream(socket, data);
+findOtherUser = (socket, users) => {
+    const others = [];
+    users.forEach(user => {
+        if (socket.id !== user) {
+            others.push(user);
+        }
+    });
+    return others[0];
 };
 
-textToSpeech = (socket, text) => {
-    socket.emit('translation', text);
+exports.initStream = () => {
+    SpeechService.initStream();
 };
 
-exports.translate = (socket, mediaStream) => {
+exports.endStream = () => {
+    SpeechService.endStream();
+};
+
+textToSpeech = (socket, users, text) => {
+    const socketId = findOtherUser(socket, users);
+    socket.to(socketId).emit('translation', text);
+};
+
+exports.translate = (socket, users, mediaStream) => {
     speechToText(mediaStream, textToTranslate => {
         TranslationService.getTranslation(textToTranslate, TRANSLATION_LANGUAGE, translation => {
             if (translation !== null) {
-                textToSpeech(socket, translation);
+                textToSpeech(socket, users, translation);
             }
         })
     });

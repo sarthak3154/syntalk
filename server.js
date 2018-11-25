@@ -24,12 +24,16 @@ io.on('connection', (socket) => {
     //Adding a new user socket id
     users.push(socket.id);
 
-    socket.on('startGoogleCloudStream', function (data) {
-        SpeechController.initStream(this, data);
+    socket.on('startGoogleCloudStream', (data) => {
+        SpeechController.initStream();
+    });
+
+    socket.on('endGoogleCloudStream', () => {
+       SpeechController.endStream();
     });
 
     socket.on('binaryData', (data) => {
-        SpeechController.translate(socket, data);
+        SpeechController.translate(socket, users, data);
     });
 });
 

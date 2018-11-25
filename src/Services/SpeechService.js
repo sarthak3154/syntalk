@@ -1,5 +1,5 @@
 const speech = require('@google-cloud/speech');
-const speechClient = new speech.SpeechClient(); // Creates a client
+const speechClient = new speech.SpeechClient();
 
 
 // The encoding of the audio file, e.g. 'LINEAR16'
@@ -22,12 +22,12 @@ const request = {
 
 let recognizeStream = null, results = [], finalText = null, found = false;
 
-function stopRecognitionStream() {
+stopRecognitionStream = () => {
     if (recognizeStream) {
         recognizeStream.end();
     }
     recognizeStream = null;
-}
+};
 
 getFinalTranscribedResult = (data, callback) => {
     const isTextFinal = undefined || data.results[0].isFinal;
@@ -62,6 +62,10 @@ let transcribedPromise = new Promise((resolve) => {
             });
     };
 });
+
+exports.endStream = () => {
+    stopRecognitionStream();
+};
 
 exports.speechToText = (mediaStream, callback) => {
     if (recognizeStream !== null) {
