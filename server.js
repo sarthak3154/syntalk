@@ -6,6 +6,9 @@ const io = require('socket.io')(http);
 const logger = require('morgan');
 const bodyParser = require('body-parser');
 
+//Controller
+const SpeechController = require('./src/Controllers/SpeechController');
+
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
@@ -16,8 +19,12 @@ app.get('/', (req, res) => {
 
 io.on('connection', (socket) => {
     console.log('User connected');
-    socket.on('media', (mediaStream) => {
-        // socket.emit('translation', SpeechController.translate(mediaStream));
+    socket.on('startGoogleCloudStream', function (data) {
+        SpeechController.initStream(this, data);
+    });
+
+    socket.on('binaryData', (data) => {
+        SpeechController.translate(this, data);
     })
 });
 
