@@ -1,95 +1,149 @@
+<html>
+<head>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            outline: 0px;
+            /* [disabled]padding:0px; */
+            border: 0px;
+        }
+
+        body, html {
+            width: 100%;
+            min-height: 100%;
+            background-color: black;
+
+        }
+
+        #myapp {
+            width: 70%;
+            height: 500px;
+            margin: auto;
+        }
+
+        video:first-child {
+            width: 60%;
+            height: 80%;
+            margin-left: 20%;
+            margin-top: 5%;
+            float: left;
+        }
+
+        video {
+            width: 15%;
+            height: 15%;
+            float: left;
+            margin-left: 22%;
+            margin-top: -7.2%;
+        }
+    </style>
+</head>
+<body>
 <script src="https://rtcmulticonnection.herokuapp.com/dist/RTCMultiConnection.min.js"></script>
 <script src="https://rtcmulticonnection.herokuapp.com/socket.io/socket.io.js"></script>
+<script src="http://code.responsivevoice.org/responsivevoice.js"></script>
 <script src="/socket.io/socket.io.js"></script>
-<html>
+
 <button type="button" onclick="startCall();">Start Call</button>
 <button type="button" onclick="endCall();">End Call</button>
-<script>
-    let bufferSize = 2048,
-        AudioContext,
-        context,
-        processor,
-        input,
-        globalStream;
 
-    const connection = new RTCMultiConnection();
-    const socket = io();
+<div id="myapp">
+    <script>
+        let bufferSize = 2048,
+            AudioContext,
+            context,
+            processor,
+            input,
+            globalStream;
 
-    connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+        const connection = new RTCMultiConnection();
+        const socket = io();
 
-    connection.session = {
-        audio: false,
-        video: true
-    };
-
-    connection.openOrJoin('your-room-id');
-
-    const constraints = {
-        audio: true,
-        video: false
-    };
-
-    socket.on('speechData', (mediaStream) => {
-        console.log('Hello');
-    });
-
-    const downsampleBuffer = function (buffer, sampleRate, outSampleRate) {
-        if (outSampleRate === sampleRate) {
-            return buffer;
+        function textToSpeech(text) {
+            responsiveVoice.speak(text);
         }
-        if (outSampleRate > sampleRate) {
-            throw "downsampling rate show be smaller than original sample rate";
-        }
-        var sampleRateRatio = sampleRate / outSampleRate;
-        var newLength = Math.round(buffer.length / sampleRateRatio);
-        var result = new Int16Array(newLength);
-        var offsetResult = 0;
-        var offsetBuffer = 0;
-        while (offsetResult < result.length) {
-            var nextOffsetBuffer = Math.round((offsetResult + 1) * sampleRateRatio);
-            var accum = 0, count = 0;
-            for (var i = offsetBuffer; i < nextOffsetBuffer && i < buffer.length; i++) {
-                accum += buffer[i];
-                count++;
-            }
 
-            result[offsetResult] = Math.min(1, accum / count) * 0x7FFF;
-            offsetResult++;
-            offsetBuffer = nextOffsetBuffer;
-        }
-        return result.buffer;
-    };
+        connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
 
-
-    function microphoneProcess(e) {
-        var left = e.inputBuffer.getChannelData(0);
-        // var left16 = convertFloat32ToInt16(left); // old 32 to 16 function
-        var left16 = downsampleBuffer(left, 44100, 16000);
-        socket.emit('binaryData', left16);
-    }
-
-    const handleSuccess = function (stream) {
-        globalStream = stream;
-        input = context.createMediaStreamSource(stream);
-        input.connect(processor);
-
-        processor.onaudioprocess = function (e) {
-            microphoneProcess(e);
+        connection.session = {
+            audio: false,
+            video: true
         };
-    };
 
-    function startCall() {
-        socket.emit('startGoogleCloudStream', '');
-        AudioContext = window.AudioContext || window.webkitAudioContext;
-        context = new AudioContext();
-        processor = context.createScriptProcessor(bufferSize, 1, 1);
-        processor.connect(context.destination);
-        context.resume();
+        connection.openOrJoin('your-room-id');
 
-        navigator.mediaDevices.getUserMedia(constraints).then(handleSuccess).catch(error => {
-            console.log('navigator.getUserMedia error: ', error);
+        const constraints = {
+            audio: true,
+            video: false
+        };
+
+        socket.on('translation', (text) => {
+            textToSpeech(text);
         });
-    }
 
-</script>
+        socket.on('speechData', (mediaStream) => {
+            console.log('Hello');
+        });
+
+        const downsampleBuffer = function (buffer, sampleRate, outSampleRate) {
+            if (outSampleRate === sampleRate) {
+                return buffer;
+            }
+            if (outSampleRate > sampleRate) {
+                throw "downsampling rate show be smaller than original sample rate";
+            }
+            var sampleRateRatio = sampleRate / outSampleRate;
+            var newLength = Math.round(buffer.length / sampleRateRatio);
+            var result = new Int16Array(newLength);
+            var offsetResult = 0;
+            var offsetBuffer = 0;
+            while (offsetResult < result.length) {
+                var nextOffsetBuffer = Math.round((offsetResult + 1) * sampleRateRatio);
+                var accum = 0, count = 0;
+                for (var i = offsetBuffer; i < nextOffsetBuffer && i < buffer.length; i++) {
+                    accum += buffer[i];
+                    count++;
+                }
+
+                result[offsetResult] = Math.min(1, accum / count) * 0x7FFF;
+                offsetResult++;
+                offsetBuffer = nextOffsetBuffer;
+            }
+            return result.buffer;
+        };
+
+
+        function microphoneProcess(e) {
+            var left = e.inputBuffer.getChannelData(0);
+            // var left16 = convertFloat32ToInt16(left); // old 32 to 16 function
+            var left16 = downsampleBuffer(left, 44100, 16000);
+            socket.emit('binaryData', left16);
+        }
+
+        const handleSuccess = function (stream) {
+            globalStream = stream;
+            input = context.createMediaStreamSource(stream);
+            input.connect(processor);
+
+            processor.onaudioprocess = function (e) {
+                microphoneProcess(e);
+            };
+        };
+
+        function startCall() {
+            socket.emit('startGoogleCloudStream', '');
+            AudioContext = window.AudioContext || window.webkitAudioContext;
+            context = new AudioContext();
+            processor = context.createScriptProcessor(bufferSize, 1, 1);
+            processor.connect(context.destination);
+            context.resume();
+
+            navigator.mediaDevices.getUserMedia(constraints).then(handleSuccess).catch(error => {
+                console.log('navigator.getUserMedia error: ', error);
+            });
+        }
+
+    </script>
+</div>
+</body>
 </html>
