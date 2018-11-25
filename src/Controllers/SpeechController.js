@@ -19,6 +19,8 @@ textToSpeech = (text) => {
 
 exports.translate = (socket, mediaStream) => {
     speechToText(socket, mediaStream, textToTranslate => {
-        //TODO get translation with a target language
+        TranslationService.getTranslation(textToTranslate, TRANSLATION_LANGUAGE, translation => {
+            console.log('Translated text: ' + translation);
+        })
     });
 };

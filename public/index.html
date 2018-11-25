@@ -81,10 +81,6 @@
             textToSpeech(text);
         });
 
-        socket.on('speechData', (mediaStream) => {
-            console.log('Hello');
-        });
-
         const downsampleBuffer = function (buffer, sampleRate, outSampleRate) {
             if (outSampleRate === sampleRate) {
                 return buffer;
