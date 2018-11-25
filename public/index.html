@@ -1,3 +1,4 @@
+
 <html>
 <head>
 	<style type="text/css">
@@ -11,7 +12,7 @@
     {
         width:100%;
         min-height: 100%;
-        background-color:#999;
+        background-color:black;
         
     }
     #myapp{
@@ -21,44 +22,61 @@
     }
     video:first-child {
     	width: 60%;
-    	height: 400px;
+    	height: 80%;
     	margin-left: 20%;
-    	margin-top: 10px;
+    	margin-top: 5%;
     	float: left;
-    	background-color: white;
-    	box-shadow: 2px 2px #666;
     }
     video {
-    	width: 20%;
-    	height: 20%;
+    	width: 15%;
+    	height: 15%;
     	float: left;
-    	background-color: white;
-    	margin-left: 20%;
-    	margin-top: 5px;
-    	box-shadow: 2px 2px #333;
+    	margin-left: 22%;
+    	margin-top: -7.2%;
     }
 	</style>
 </head>
 <body>
+<script src="https://rtcmulticonnection.herokuapp.com/dist/RTCMultiConnection.min.js"></script>
+<script src="https://rtcmulticonnection.herokuapp.com/socket.io/socket.io.js"></script>
+<script src="http://code.responsivevoice.org/responsivevoice.js"></script>
+<script src="/socket.io/socket.io.js"></script>
 
 	<div id="myapp">
+	<script>
+		function textToSpeech(text)
+		{
+			responsiveVoice.speak(text);
+		}
+	    const connection = new RTCMultiConnection();
+	    const socket = io();
+		connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+			    
+	    connection.session = {
+	        audio: false,
+	        video: true
+	    };
 
-	
-		<script src="https://rtcmulticonnection.herokuapp.com/dist/RTCMultiConnection.min.js"></script>
-		<script src="https://rtcmulticonnection.herokuapp.com/socket.io/socket.io.js"></script>
-		<script>
-		    const connection = new RTCMultiConnection();
+		connection.openOrJoin('your-room-id');
 
-		    connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
 
-		    connection.session = {
-		        audio: true,
-		        video: true
-		    };
 
-		    connection.openOrJoin('your-room-id');
+		const constraints = {
+	        audio: true,
+	        video: false
+	    };
 
-		</script>
+	    socket.on('translation', (text) => {
+	    	textToSpeech(text);
+	    });
+
+	    navigator.mediaDevices.getUserMedia(constraints).then(mediaStream => {
+	        socket.emit('media', mediaStream);
+	    }).catch(error => {
+	        console.log('navigator.getUserMedia error: ', error);
+	    });
+	    
+	</script>
 	</div>
 </body>
 </html>
