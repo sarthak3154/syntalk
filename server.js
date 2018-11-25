@@ -17,15 +17,20 @@ app.get('/', (req, res) => {
     return res.sendFile(__dirname + '/public/index.html');
 });
 
+const users = [];
+
 io.on('connection', (socket) => {
-    console.log('User connected');
+    console.log('User connected. Socket Id: ' + socket.id);
+    //Adding a new user socket id
+    users.push(socket.id);
+
     socket.on('startGoogleCloudStream', function (data) {
         SpeechController.initStream(this, data);
     });
 
     socket.on('binaryData', (data) => {
-        SpeechController.translate(this, data);
-    })
+        SpeechController.translate(socket, data);
+    });
 });
 
 

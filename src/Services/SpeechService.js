@@ -20,10 +20,6 @@ const request = {
     interimResults: true
 };
 
-exports.textToSpeech = (text) => {
-    //TODO text to speech impl
-};
-
 let recognizeStream = null, results = [], finalText = null, found = false;
 
 function stopRecognitionStream() {
@@ -45,7 +41,7 @@ getFinalTranscribedResult = (data, callback) => {
 };
 
 let transcribedPromise = new Promise((resolve) => {
-    exports.initStream = (socket, data) => {
+    exports.initStream = () => {
         recognizeStream = speechClient.streamingRecognize(request)
             .on('error', console.error)
             .on('data', (data) => {
@@ -56,19 +52,18 @@ let transcribedPromise = new Promise((resolve) => {
 
                 if (data.results[0] && data.results[0].isFinal) {
                     stopRecognitionStream();
-                    this.initStream(socket);
+                    this.initStream();
                 }
 
                 if ((finalText = getFinalTranscribedResult(data)) != null) {
                     found = true;
-                    console.log(finalText);
                     resolve();
                 }
             });
     };
 });
 
-exports.speechToText = (socket, mediaStream, callback) => {
+exports.speechToText = (mediaStream, callback) => {
     if (recognizeStream !== null) {
         recognizeStream.write(mediaStream);
     }

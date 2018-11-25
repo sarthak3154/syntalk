@@ -13,14 +13,16 @@ exports.initStream = (socket, data) => {
     SpeechService.initStream(socket, data);
 };
 
-textToSpeech = (text) => {
-    return SpeechService.textToSpeech(text);
+textToSpeech = (socket, text) => {
+    socket.emit('translation', text);
 };
 
 exports.translate = (socket, mediaStream) => {
-    speechToText(socket, mediaStream, textToTranslate => {
+    speechToText(mediaStream, textToTranslate => {
         TranslationService.getTranslation(textToTranslate, TRANSLATION_LANGUAGE, translation => {
-            console.log('Translated text: ' + translation);
+            if (translation !== null) {
+                textToSpeech(socket, translation);
+            }
         })
     });
 };
