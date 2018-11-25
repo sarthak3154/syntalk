@@ -1,17 +1,18 @@
 const SpeechService = require('../Services/SpeechService');
 const TranslationService = require('../Services/TranslateService');
 
-speechToText = (mediaStream) => {
-    return SpeechService.speechToText(mediaStream);
+speechToText = (socket, mediaStream) => {
+    SpeechService.speechToText(socket, mediaStream);
+};
+
+exports.initStream = (socket, data) => {
+    SpeechService.initStream(socket, data);
 };
 
 textToSpeech = (text) => {
     return SpeechService.textToSpeech(text);
 };
 
-exports.translate = (mediaStream) => {
-    const text = speechToText(mediaStream);
-    TranslationService.getTranslation(text, TRANSLATION_LANGUAGE, translation => {
-        return SpeechService.textToSpeech(translation);
-    });
+exports.translate = (socket, mediaStream) => {
+    speechToText(socket, mediaStream);
 };
