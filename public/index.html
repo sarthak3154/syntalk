@@ -89,7 +89,7 @@
             globalStream;
 
         const connection = new RTCMultiConnection();
-        const socket = io();
+        const socket = io('http://localhost:8080');
 
         function textToSpeech(text) {
             responsiveVoice.speak(text);
@@ -159,8 +159,6 @@
         };
 
         function startCall() {
-           /* document.getElementById('bt1').disabled = true;
-            document.getElementById("p2").style.backgroundColor = "grey";*/
             socket.emit('startGoogleCloudStream', '');
             AudioContext = window.AudioContext || window.webkitAudioContext;
             context = new AudioContext();
@@ -174,8 +172,6 @@
         }
 
         function endCall() {
-            /*document.getElementById('bt1').disabled = false;
-            document.getElementById('p2').style.backgroundColor = "black";*/
             socket.emit('endGoogleCloudStream', '');
         }
     </script>

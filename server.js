@@ -5,6 +5,7 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const logger = require('morgan');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 
 //Controller
 const SpeechController = require('./src/Controllers/SpeechController');
@@ -12,6 +13,7 @@ const SpeechController = require('./src/Controllers/SpeechController');
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(cors({credentials: true, origin: "*"}));
 
 app.get('/', (req, res) => {
     return res.sendFile(__dirname + '/public/index.html');
@@ -19,6 +21,7 @@ app.get('/', (req, res) => {
 
 const users = [];
 
+io.origins('*:*');
 io.on('connection', (socket) => {
     console.log('User connected. Socket Id: ' + socket.id);
     //Adding a new user socket id
@@ -29,7 +32,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('endGoogleCloudStream', () => {
-       SpeechController.endStream();
+        SpeechController.endStream();
     });
 
     socket.on('binaryData', (data) => {

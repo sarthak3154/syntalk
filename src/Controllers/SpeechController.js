@@ -29,7 +29,7 @@ exports.endStream = () => {
 
 textToSpeech = (socket, users, text) => {
     const socketId = findOtherUser(socket, users);
-    socket.to(socketId).emit('translation', text);
+    socket.to(`${socketId}`).emit('translation', text);
 };
 
 exports.translate = (socket, users, mediaStream) => {
